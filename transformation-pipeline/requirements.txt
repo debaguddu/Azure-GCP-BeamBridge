@@ -1,0 +1,11 @@
+# Apache Beam with GCP extras (BigQuery, GCS, Dataflow)
+apache-beam[gcp]>=2.56.0,<3.0.0
+
+# Google Cloud SDKs
+google-cloud-bigquery>=3.20.0
+google-cloud-storage>=2.16.0
+
+# Data validation and parsing
+pydantic>=2.7.0
+python-dateutil>=2.9.0
+typing-extensions>=4.10.0

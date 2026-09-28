@@ -1,0 +1,85 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: beambridge-extraction-service
+  main:
+    banner-mode: console
+
+  # ==============================================================
+  # DUAL DATASOURCE CONFIGURATION
+  # ==============================================================
+  datasource:
+    # 1. PostgreSQL: Control Plane & Pipeline Metadata
+    postgres:
+      jdbc-url: jdbc:postgresql://${PG_HOST:localhost}:${PG_PORT:5432}/${PG_DATABASE:postgres}?sslmode=${PG_SSLMODE:prefer}&currentSchema=${PG_SCHEMA:public}
+      username: ${PG_USER:postgres}
+      password: ${PG_PASSWORD:1234}
+      driver-class-name: org.postgresql.Driver
+      hikari:
+        pool-name: HikariPool-Postgres-Control
+        maximum-pool-size: 10
+        minimum-idle: 2
+        idle-timeout: 300000
+        connection-timeout: 20000
+        max-lifetime: 1800000
+
+    # 2. Azure SQL: Source OLTP Retail Data (Keyset Extraction Source)
+    azuresql:
+      jdbc-url: jdbc:sqlserver://${DB_SERVER:localhost}:${DB_PORT:1433};databaseName=${DB_NAME:ADFPracticeNihar2001};encrypt=true;trustServerCertificate=${DB_TRUST_SERVER_CERTIFICATE:true};selectMethod=cursor;responseBuffering=adaptive;applicationIntent=ReadOnly;
+      username: ${DB_USER:sa}
+      password: ${DB_PASSWORD:Password123!}
+      driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+      hikari:
+        pool-name: HikariPool-AzureSql-Source
+        maximum-pool-size: 15
+        minimum-idle: 3
+        idle-timeout: 300000
+        connection-timeout: 30000
+        max-lifetime: 1800000
+        validation-timeout: 5000
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: false
+        show_sql: false
+
+# ==============================================================
+# GOOGLE CLOUD STORAGE & EXTRACTION CONFIGURATION
+# ==============================================================
+gcp:
+  project-id: ${GCP_PROJECT_ID:your-gcp-project-id}
+  storage:
+    bucket-name: ${GCS_LANDING_BUCKET:your-gcp-project-landing-zone}
+    base-path: ${GCS_BASE_PATH:retail}
+
+pipeline:
+  extraction:
+    # Default rows per chunk if not specified in pipeline_control
+    default-chunk-size: 50000
+    # JDBC streaming fetch size to bound JVM heap usage (prevents OOM)
+    jdbc-fetch-size: 5000
+    # Automated execution on service startup
+    run-on-startup: ${RUN_ON_STARTUP:true}
+    # Specific tables to process (empty means all active tables from pipeline_control)
+    target-tables: ${TARGET_TABLES:}
+
+# ==============================================================
+# MONITORING & HEALTH CHECKS (KUBERNETES PROBES)
+# ==============================================================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true

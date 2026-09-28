@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: beambridge-config
+  namespace: beambridge
+data:
+  # Azure SQL Source DB
+  DB_SERVER: "niharpracticeadf.database.windows.net"
+  DB_PORT: "1433"
+  DB_NAME: "ADFPracticeNihar2001"
+  DB_TRUST_SERVER_CERTIFICATE: "true"
+
+  # PostgreSQL Control DB (Cloud SQL or cluster-internal)
+  PG_HOST: "postgres-service.beambridge.svc.cluster.local"
+  PG_PORT: "5432"
+  PG_DATABASE: "postgres"
+  PG_SCHEMA: "public"
+  PG_SSLMODE: "prefer"
+
+  # Google Cloud Storage Landing
+  GCP_PROJECT_ID: "your-gcp-project-id"
+  GCS_LANDING_BUCKET: "your-gcp-project-landing-zone"
+  GCS_BASE_PATH: "retail"
+
+  # Extraction parameters
+  RUN_ON_STARTUP: "true"

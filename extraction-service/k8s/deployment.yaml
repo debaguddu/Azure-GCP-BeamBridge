@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: beambridge-extraction-service
+  namespace: beambridge
+  labels:
+    app.kubernetes.io/name: beambridge-extraction-service
+    app.kubernetes.io/part-of: project-kalinga
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate # Recreate strategy ensures singleton watermark updates per table
+  selector:
+    matchLabels:
+      app: beambridge-extraction-service
+  template:
+    metadata:
+      labels:
+        app: beambridge-extraction-service
+    spec:
+      serviceAccountName: beambridge-gcs-sa # Workload Identity bound to GCP IAM with Storage Object Admin
+      containers:
+        - name: extractor
+          image: gcr.io/your-gcp-project-id/beambridge-extraction-service:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: http
+          envFrom:
+            - configMapRef:
+                name: beambridge-config
+          env:
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: beambridge-secrets
+                  key: azure-db-user
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: beambridge-secrets
+                  key: azure-db-password
+            - name: PG_USER
+              valueFrom:
+                secretKeyRef:
+                  name: beambridge-secrets
+                  key: pg-db-user
+            - name: PG_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: beambridge-secrets
+                  key: pg-db-password
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "768Mi"
+            limits:
+              cpu: "2000m"
+              memory: "1536Mi"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 45
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 2
