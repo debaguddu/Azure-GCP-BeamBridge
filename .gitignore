@@ -1,0 +1,13 @@
+# Environment variables / credentials
+.env
+*.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Large CSV files (>100MB exceeds GitHub push limits; generated via TestDataCreation.py)
+*.csv
+
