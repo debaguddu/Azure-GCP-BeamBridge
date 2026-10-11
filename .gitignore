@@ -1,13 +1,75 @@
-# Environment variables / credentials
+# Environment variables
 .env
+.env.local
+.env.*.local
 *.env
-.env.*
-!.env.example
+
+# Credentials & Service Account Keys (Zero Leaks)
+credentials/
+*.json
+!credentials/*.example.json
 
 # Python
 __pycache__/
 *.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+
+# Java & Maven
+target/
+*.class
+*.jar
+*.war
+*.ear
+.mvn/
+*.log
+
+# IDEs & OS files
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.tfvars
+*.tfvars.json
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraform.rc
+terraform.rc
+tfplan
 
 # Large CSV files (>100MB exceeds GitHub push limits; generated via TestDataCreation.py)
 *.csv
-
+!.env.example
